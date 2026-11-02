@@ -67,10 +67,13 @@ namespace CodeLab.BLL
                         "its published course.");
                 }
 
-                CodeExecutionResult execution =
-                    await executionService.ExecuteAsync(
-                        challenge.Language,
-                        submittedCode);
+                bool markup = IsMarkupChallenge(challenge.Language);
+                CodeExecutionResult execution = markup
+                    ? new CodeExecutionResult {
+                        RequestSucceeded = true,
+                        Output = "HTML/CSS source review. No console execution or automated visual test was performed."
+                    }
+                    : await executionService.ExecuteAsync(challenge.Language, submittedCode);
 
                 // Service failures must not count as learner attempts.
                 if (!execution.RequestSucceeded)
@@ -113,12 +116,12 @@ namespace CodeLab.BLL
 
                 string actualOutput = execution.Output ?? string.Empty;
 
-                bool matches = string.Equals(
+                bool matches = markup || string.Equals(
                     NormaliseOutput(actualOutput),
                     NormaliseOutput(challenge.ExpectedOutput),
                     StringComparison.Ordinal);
 
-                var review = await new GeminiCodeReviewService().EvaluateAsync(challenge,submittedCode,actualOutput,matches?"Passed":"Failed");
+                var review = await new GeminiCodeReviewService().EvaluateAsync(challenge,submittedCode,actualOutput,markup?"Source review only":matches?"Passed":"Failed");
                 string status = GeminiCodeReviewService.FinalStatus(matches,review);
                 var reviewedChallenge=repository.GetChallenge(learnerId,challengeId);
                 if(reviewedChallenge==null || reviewedChallenge.Description!=challenge.Description || reviewedChallenge.ExpectedOutput!=challenge.ExpectedOutput || reviewedChallenge.Language!=challenge.Language || reviewedChallenge.PointsReward!=challenge.PointsReward)
@@ -146,6 +149,11 @@ namespace CodeLab.BLL
                     "We could not confirm that your submission was saved. " +
                     "Refresh and check your submission history before trying again.");
             }
+        }
+
+        public static bool IsMarkupChallenge(string language)
+        {
+            return string.Equals((language ?? "").Trim(), "html", StringComparison.OrdinalIgnoreCase);
         }
 
         private static string NormaliseOutput(string value)

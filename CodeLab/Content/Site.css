@@ -1,4 +1,4 @@
-﻿/* CodeLab brand styles, layered on top of Bootstrap 5.
+/* CodeLab brand styles, layered on top of Bootstrap 5.
    Shared rules live here; classes are prefixed "cl-" so they never clash with Bootstrap. */
 
 :root {
@@ -870,4 +870,390 @@ textarea {
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+/* Shared learner interaction feedback. Keep locked controls still. */
+.ld-wrap .jump-card,
+.ld-wrap .ld-tab,
+.cl-navbar .cl-account-toggle,
+.cl-navbar .cl-theme-toggle,
+.cl-navbar .nav-link,
+.cl-account-menu .dropdown-item,
+.ld-wrap .jump-continue,
+.ld-wrap a.cw-start-button[href]:not(.aspNetDisabled):not([aria-disabled="true"]) {
+    transition: background-color .2s ease, color .2s ease, border-color .2s ease,
+                box-shadow .2s ease, transform .2s ease, filter .2s ease;
+}
+.ld-wrap .jump-card:focus-within {
+    border-color:#e982a2;
+    box-shadow:0 8px 22px #c9527d18;
+}
+@media (hover:hover) and (pointer:fine) {
+    .ld-wrap .jump-card:hover {
+        transform:translateY(-4px);
+        border-color:#e982a2;
+        box-shadow:0 12px 28px #c9527d20;
+    }
+    .ld-wrap .ld-tab:not(.selected):not(.disabled):hover {
+        background-color:#ffe5ee;
+        color:#b32f61;
+        box-shadow:0 3px 10px #c9527d14;
+    }
+    .ld-wrap .ld-tab.selected:hover { filter:brightness(1.08); }
+    .cl-navbar .cl-theme-toggle:hover,
+    .cl-navbar .cl-account-toggle:hover {
+        background-color:#ffe5ee;
+        border-color:#e982a2;
+        box-shadow:0 4px 12px #c9527d1a;
+    }
+    .cl-navbar .cl-theme-toggle:hover .cl-icon { color:#b32f61; }
+    .ld-wrap .jump-continue:hover,
+    .ld-wrap a.cw-start-button[href]:not(.aspNetDisabled):not([aria-disabled="true"]):hover {
+        transform:translateY(-2px);
+        filter:brightness(1.08);
+        box-shadow:0 7px 16px #c9527d38;
+    }
+    [data-theme=dark] .ld-wrap .ld-tab:not(.selected):not(.disabled):hover,
+    [data-theme=dark] .cl-navbar .cl-theme-toggle:hover,
+    [data-theme=dark] .cl-navbar .cl-account-toggle:hover {
+        background-color:#3b263d;
+        color:#ffb4cb;
+        border-color:#c9527d;
+    }
+    [data-theme=dark] .cl-navbar .cl-theme-toggle:hover .cl-icon { color:#ffb4cb; }
+}
+.ld-wrap .jump-continue:focus-visible,
+.ld-wrap a.cw-start-button[href]:focus-visible,
+.ld-wrap .ld-tab:focus-visible {
+    outline:2px solid #c9527d;
+    outline-offset:4px;
+}
+.ld-wrap .jump-continue:active,
+.ld-wrap a.cw-start-button[href]:not(.aspNetDisabled):not([aria-disabled="true"]):active {
+    transform:translateY(0);
+}
+@media (prefers-reduced-motion:reduce) {
+    .ld-wrap .jump-card,
+    .ld-wrap .ld-tab,
+    .cl-navbar .cl-account-toggle,
+    .cl-navbar .cl-theme-toggle,
+    .cl-navbar .nav-link,
+    .cl-account-menu .dropdown-item,
+    .ld-wrap .jump-continue,
+    .ld-wrap a.cw-start-button[href]:not(.aspNetDisabled):not([aria-disabled="true"]) {
+        transition:none;
+        transform:none;
+    }
+}
+/* Badge gallery hover feedback follows each badge's difficulty colour. */
+.lb-wrap .lb-badge-card {
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.lb-wrap .lb-badge-icon {
+    transition:transform .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .lb-wrap .lb-badge-card:hover {
+        transform:translateY(-4px);
+        border-color:var(--tier,#c9527d);
+        box-shadow:0 10px 24px #0f172a12;
+    }
+    .lb-wrap .lb-badge-card:not(.is-locked):hover .lb-badge-icon {
+        transform:scale(1.06);
+    }
+    .lb-wrap .lb-badge-card.is-locked:hover {
+        transform:translateY(-2px);
+        box-shadow:0 6px 16px #0f172a0d;
+    }
+}
+@media (prefers-reduced-motion:reduce) {
+    .lb-wrap .lb-badge-card,
+    .lb-wrap .lb-badge-icon,
+    .lb-wrap .lb-badge-card:hover,
+    .lb-wrap .lb-badge-card.is-locked:hover,
+    .lb-wrap .lb-badge-card:not(.is-locked):hover .lb-badge-icon {
+        transition:none;
+        transform:none;
+    }
+}
+/* Podium feedback preserves the medal colours and current learner highlight. */
+.lb-wrap .lb-leader {
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .lb-wrap .lb-leader:hover {
+        transform:translateY(-4px);
+        border-color:var(--medal,#c9527d);
+        box-shadow:0 12px 26px #0f172a16;
+    }
+    .lb-wrap .lb-leader.is-you:hover {
+        border-color:var(--lb-pink);
+        box-shadow:0 12px 26px #c9527d24;
+    }
+}
+@media (prefers-reduced-motion:reduce) {
+    .lb-wrap .lb-leader,
+    .lb-wrap .lb-leader:hover {
+        transition:none;
+        transform:none;
+    }
+}
+/* Profile tabs: text-only hover; retain the selected tab's normal appearance. */
+.pf .pf-tabs button {
+    cursor:pointer;
+    transition:color .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .pf .pf-tabs button:hover { color:#b32f61; }
+    [data-theme=dark] .pf .pf-tabs button:hover { color:#ffb4cb; }
+}
+.pf .pf-tabs button:focus-visible {
+    outline:2px solid var(--rose,#c9527d);
+    outline-offset:-2px;
+}
+@media (prefers-reduced-motion:reduce) {
+    .pf .pf-tabs button { transition:none; }
+}
+/* Profile badge cards and equip actions. */
+.pf .pf-badge {
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.pf .pf-badge-symbol,
+.pf .pf-badge .pf-button:not(:disabled) {
+    transition:transform .2s ease, background-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .pf .pf-badge:not(.is-locked):hover {
+        transform:translateY(-3px);
+        border-color:var(--tier,#c9527d);
+        box-shadow:0 9px 22px #c9527d18;
+    }
+    .pf .pf-badge.is-featured:hover {
+        border-color:var(--rose,#c9527d);
+        box-shadow:0 9px 22px #c9527d28;
+    }
+    .pf .pf-badge:not(.is-locked):hover .pf-badge-symbol {
+        transform:scale(1.05);
+    }
+    .pf .pf-badge.is-locked:hover {
+        border-color:#cbd5e1;
+        box-shadow:0 4px 12px #0f172a08;
+    }
+    .pf .pf-badge .pf-button:not(:disabled):hover {
+        background-color:#ffe5ee;
+        color:#b32f61;
+        box-shadow:0 3px 10px #c9527d20;
+        transform:translateY(-1px);
+    }
+    [data-theme=dark] .pf .pf-badge .pf-button:not(:disabled):hover {
+        background-color:#3b263d;
+        color:#ffb4cb;
+    }
+}
+.pf .pf-badge .pf-button:focus-visible {
+    outline:2px solid var(--rose,#c9527d);
+    outline-offset:3px;
+}
+@media (prefers-reduced-motion:reduce) {
+    .pf .pf-badge,
+    .pf .pf-badge:hover,
+    .pf .pf-badge:not(.is-locked):hover,
+    .pf .pf-badge-symbol,
+    .pf .pf-badge:not(.is-locked):hover .pf-badge-symbol,
+    .pf .pf-badge .pf-button:not(:disabled),
+    .pf .pf-badge .pf-button:not(:disabled):hover {
+        transition:none;
+        transform:none;
+    }
+}
+/* Rounded profile milestone track and fill across browsers. */
+.pf .pf-progress progress {
+    display:block;
+    width:100%;
+    height:8px;
+    appearance:none;
+    -webkit-appearance:none;
+    border:0;
+    border-radius:999px;
+    overflow:hidden;
+    background:#fce7ef;
+}
+.pf .pf-progress progress::-webkit-progress-bar {
+    background:#fce7ef;
+    border-radius:999px;
+}
+.pf .pf-progress progress::-webkit-progress-value {
+    background:#c9527d;
+    border-radius:999px;
+}
+.pf .pf-progress progress::-moz-progress-bar {
+    background:#c9527d;
+    border-radius:999px;
+}
+[data-theme=dark] .pf .pf-progress progress,
+[data-theme=dark] .pf .pf-progress progress::-webkit-progress-bar {
+    background:#392839;
+}
+/* Rounded dashboard course progress track and fill. */
+.ld-wrap .jump-card progress {
+    appearance:none;
+    -webkit-appearance:none;
+    border:0;
+    border-radius:999px;
+    overflow:hidden;
+    background:#fff0f5;
+}
+.ld-wrap .jump-card progress::-webkit-progress-bar {
+    background:#fff0f5;
+    border-radius:999px;
+}
+.ld-wrap .jump-card progress::-webkit-progress-value {
+    background:linear-gradient(90deg,#bd386a,#ff9ea6);
+    border-radius:999px;
+}
+.ld-wrap .jump-card progress::-moz-progress-bar {
+    background:linear-gradient(90deg,#bd386a,#ff9ea6);
+    border-radius:999px;
+}
+/* One consistent gradient for native and custom progress indicators. */
+:root { --cl-progress-gradient:linear-gradient(90deg,#bd386a,#ff9ea6); }
+body progress {
+    appearance:none;
+    -webkit-appearance:none;
+    border:0;
+    border-radius:999px;
+    overflow:hidden;
+    background:#fff0f5;
+}
+body progress::-webkit-progress-bar {
+    background:#fff0f5;
+    border-radius:999px;
+}
+body progress::-webkit-progress-value,
+.pf .pf-progress progress::-webkit-progress-value,
+.ld-wrap .jump-card progress::-webkit-progress-value {
+    background:var(--cl-progress-gradient);
+    border-radius:999px;
+}
+body progress::-moz-progress-bar,
+.pf .pf-progress progress::-moz-progress-bar,
+.ld-wrap .jump-card progress::-moz-progress-bar {
+    background:var(--cl-progress-gradient);
+    border-radius:999px;
+}
+body .ld-progress > div,
+body .lc-progress span,
+body .cc-progress-fill,
+body .progress-bar {
+    background:var(--cl-progress-gradient);
+    border-radius:999px;
+}
+/* Learner navigation uses text-only hover feedback. */
+@media (hover:hover) and (pointer:fine) {
+    .ld-wrap .ld-tabs .ld-tab:not(.selected):not(.disabled):hover {
+        background:transparent;
+        color:#b32f61;
+        box-shadow:none;
+    }
+    .ld-wrap .ld-tabs .ld-tab.selected:hover {
+        filter:none;
+    }
+    [data-theme=dark] .ld-wrap .ld-tabs .ld-tab:not(.selected):not(.disabled):hover {
+        background:transparent;
+        color:#ffb4cb;
+        box-shadow:none;
+    }
+}
+/* Compact learning material spacing without removing authored line breaks. */
+.cc-wrap .cc-lesson-material { padding:20px 28px; }
+.cc-wrap .cc-code-section,
+.cc-wrap .cc-video-section,
+.cc-wrap .cc-attachment-section { margin-top:20px; }
+@media(max-width:767px) {
+    .cc-wrap .cc-lesson-material { padding:18px; }
+}
+/* Safe Markdown lesson content: spacing comes from blocks, not source whitespace. */
+.cc-wrap .cc-markdown-content { white-space:normal; line-height:1.75; }
+.cc-markdown-content > :first-child { margin-top:0; }
+.cc-markdown-content > :last-child { margin-bottom:0; }
+.cc-markdown-content h3,.cc-markdown-content h4,.cc-markdown-content h5 { margin:24px 0 10px; font-weight:750; line-height:1.35; }
+.cc-markdown-content h3 { font-size:20px; }
+.cc-markdown-content h4 { font-size:17px; }
+.cc-markdown-content h5 { font-size:15px; }
+.cc-markdown-content p,.cc-markdown-content ul,.cc-markdown-content ol { margin:0 0 14px; }
+.cc-markdown-content li { margin-bottom:6px; }
+.cc-markdown-content code { color:#a52d58; background:#fff0f5; padding:2px 5px; border-radius:4px; }
+.cc-markdown-content pre { overflow:auto; padding:18px; border-radius:12px; background:#172033; color:#f1f5f9; white-space:pre; }
+.cc-markdown-content pre code { color:inherit; background:transparent; padding:0; }
+.cc-markdown-content blockquote { margin:16px 0; padding:10px 16px; border-left:3px solid #c9527d; background:var(--cc-surface-soft); }
+[data-theme=dark] .cc-markdown-content :not(pre) > code { color:#ffb4cb; background:#392839; }
+
+/* Dashboard summary cards and a warm, gentle streak flicker. */
+.ld-wrap .ld-mini { transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.ld-wrap .ld-streak .ld-icon { transform-origin:50% 85%; }
+@media (hover:hover) and (pointer:fine) {
+    .ld-wrap .ld-mini:hover { transform:translateY(-4px); border-color:#e982a2; box-shadow:0 8px 20px #c9527d20; }
+    .ld-wrap .ld-streak:hover .ld-icon { animation:cl-streak-flame .7s ease-in-out infinite alternate; }
+}
+@keyframes cl-streak-flame {
+    0% { transform:rotate(-7deg) scale(.95,1); color:#f59e0b; filter:drop-shadow(0 0 2px #fbbf2470); }
+    50% { transform:rotate(4deg) scale(1.1,1.15); color:#f97316; filter:drop-shadow(0 0 5px #fb923c80); }
+    100% { transform:rotate(-3deg) scale(1.02,1.08); color:#ef6500; filter:drop-shadow(0 0 3px #fbbf2470); }
+}
+@media (prefers-reduced-motion:reduce) {
+    .ld-wrap .ld-mini,.ld-wrap .ld-mini:hover { transition:none; transform:none; }
+    .ld-wrap .ld-streak:hover .ld-icon { animation:none; }
+}
+/* HTML/CSS practice preview stays isolated from CodeLab. */
+.ch-preview-controls { display:flex; gap:8px; margin-bottom:12px; }
+.ch-preview-controls button { border:1px solid #f2c6d5; border-radius:8px; padding:7px 12px; color:#a52d58; background:#fff7fa; }
+.ch-preview-scroll { overflow:auto; margin-bottom:12px; }
+#chHtmlPreview { display:block; width:100%; height:440px; border:1px solid #e2e8f0; border-radius:12px; background:#fff; }
+
+/* Enrolled course cards match the dashboard's gentle hover feedback. */
+.ld-wrap .ld-course {
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .ld-wrap .ld-course:hover {
+        transform:translateY(-4px);
+        border-color:#e982a2;
+        box-shadow:0 12px 28px #c9527d20;
+    }
+    [data-theme=dark] .ld-wrap .ld-course:hover {
+        border-color:#c9527d;
+        box-shadow:0 12px 28px #00000030;
+    }
+}
+.ld-wrap .ld-course:focus-within {
+    border-color:#e982a2;
+    box-shadow:0 8px 22px #c9527d18;
+}
+@media (prefers-reduced-motion:reduce) {
+    .ld-wrap .ld-course,
+    .ld-wrap .ld-course:hover {
+        transition:none;
+        transform:none;
+    }
+}
+/* Dashboard milestone hover feedback. */
+.ld-wrap .ld-milestone {
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+@media (hover:hover) and (pointer:fine) {
+    .ld-wrap .ld-milestone:hover {
+        transform:translateY(-3px);
+        border-color:#e982a2;
+        box-shadow:0 10px 24px #c9527d20;
+    }
+    [data-theme=dark] .ld-wrap .ld-milestone:hover {
+        border-color:#c9527d;
+        box-shadow:0 10px 24px #00000030;
+    }
+}
+@media (prefers-reduced-motion:reduce) {
+    .ld-wrap .ld-milestone,
+    .ld-wrap .ld-milestone:hover {
+        transition:none;
+        transform:none;
+    }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Globalization;
 using System.Net.Http;
@@ -33,16 +33,9 @@ namespace CodeLab.Services
                     "Your code is too long. The limit is 20,000 characters.");
             }
 
-            string normalisedLanguage =
-                (language ?? string.Empty).Trim().ToLowerInvariant();
-
-            if (normalisedLanguage != "python" &&
-                normalisedLanguage != "python3")
-            {
-                return Failure(
-                    "Code execution currently supports Python challenges only.");
-            }
-
+            Runtime runtime = GetRuntime(language);
+            if (runtime == null)
+                return Failure("This challenge language is not supported by the execution sandbox.");
             string clientId =
                 ConfigurationManager.AppSettings["JDoodle.ClientId"];
 
@@ -59,16 +52,14 @@ namespace CodeLab.Services
                     "Check the local JDoodle settings.");
             }
 
-            // A version index identifies a runtime in JDoodle's list.
-            // Index 0 is the first listed Python 3 runtime, not the latest.
-            string versionIndex =
-                ConfigurationManager.AppSettings["JDoodle.PythonVersionIndex"];
-
+            // Pin documented JDoodle runtime indices; allow per-language overrides.
+            // Preserve the existing Python configuration key.
+            string settingKey = runtime.Language == "python3"
+                ? "JDoodle.PythonVersionIndex"
+                : "JDoodle." + runtime.Language + ".VersionIndex";
+            string versionIndex = ConfigurationManager.AppSettings[settingKey];
             if (string.IsNullOrWhiteSpace(versionIndex))
-            {
-                versionIndex = "0";
-            }
-
+                versionIndex = runtime.Version;
             int parsedVersion;
 
             if (!int.TryParse(
@@ -79,7 +70,7 @@ namespace CodeLab.Services
                 parsedVersion < 0)
             {
                 return Failure(
-                    "The configured Python runtime version is invalid.");
+                    "The configured runtime version is invalid.");
             }
 
             var serializer = new JavaScriptSerializer
@@ -92,7 +83,7 @@ namespace CodeLab.Services
                 clientId = clientId.Trim(),
                 clientSecret = clientSecret.Trim(),
                 script = sourceCode,
-                language = "python3",
+                language = runtime.Language,
                 versionIndex = parsedVersion.ToString(
                     CultureInfo.InvariantCulture),
                 stdin = string.Empty
@@ -189,6 +180,42 @@ namespace CodeLab.Services
             }
         }
 
+        public static bool IsSupportedLanguage(string language)
+        {
+            return GetRuntime(language) != null;
+        }
+
+        // https://www.jdoodle.com/docs/api/languages
+        private static Runtime GetRuntime(string language)
+        {
+            switch ((language ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "python": case "python3": return new Runtime("python3", "5");
+                case "javascript": case "js": case "nodejs": return new Runtime("nodejs", "5");
+                case "typescript": case "ts": return new Runtime("typescript", "0");
+                case "java": return new Runtime("java", "5");
+                case "c": return new Runtime("c", "6");
+                case "c++": case "cpp": return new Runtime("cpp17", "2");
+                case "c#": case "csharp": return new Runtime("csharp", "4");
+                case "php": return new Runtime("php", "5");
+                case "perl": return new Runtime("perl", "5");
+                case "bash": case "shell": return new Runtime("bash", "5");
+                // SQL challenges run in an isolated SQLite database, not CodeLab's database.
+                case "sql": case "sqlite": return new Runtime("sql", "5");
+                default: return null;
+            }
+        }
+
+        private sealed class Runtime
+        {
+            public Runtime(string language, string version)
+            {
+                Language = language;
+                Version = version;
+            }
+            public string Language { get; private set; }
+            public string Version { get; private set; }
+        }
         private static HttpClient CreateClient()
         {
             return new HttpClient

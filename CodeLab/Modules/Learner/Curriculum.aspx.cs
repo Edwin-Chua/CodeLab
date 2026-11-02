@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -716,7 +716,7 @@ WHERE Id = @attempt
             litLessonContent.Text =
                 string.IsNullOrWhiteSpace(selectedLesson.Content)
                     ? "No text content has been added yet."
-                    : selectedLesson.Content;
+                    : MarkdownHelper.ToHtml(selectedLesson.Content);
 
             lblLessonStatus.Text =
                 selectedLesson.IsCompleted
