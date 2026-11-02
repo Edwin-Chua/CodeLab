@@ -95,7 +95,7 @@
                             <div class="cl-post-meta">
                                 <div class="cl-post-author">
                                     <strong><asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("AuthorRole")) == "Tutor" %>'><%#: Eval("AuthorName") %></asp:PlaceHolder><asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("AuthorRole")) != "Tutor" %>'><%#: Eval("AuthorName") %></asp:PlaceHolder><asp:PlaceHolder runat="server" Visible='<%# !string.IsNullOrEmpty(Eval("AuthorBadgeName") as string) %>'><span class='cl-earned-badge tier-<%#: Eval("AuthorBadgeTier") %>' title="Featured earned badge">&#9733; <%#: Eval("AuthorBadgeName") %></span></asp:PlaceHolder></strong>
-                                    <%# BadgesHtml((int)Eval("AuthorId"), (string)Eval("AuthorRole"), (int)Eval("CourseInstructorId")) %>
+                                    <%# BadgesHtml((int)Eval("AuthorId"), (string)Eval("AuthorRole")) %>
                                 </div>
                                 <div class="cl-post-sub">
                                     <a class="cl-post-course" href="<%#: CourseFilterUrl((int?)Eval("CourseId")) %>">
@@ -154,7 +154,7 @@
                                         <div class="cl-reply-main">
                                             <div class="cl-reply-head">
                                                 <strong><asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("AuthorRole")) == "Tutor" %>'><%#: Eval("AuthorName") %></asp:PlaceHolder><asp:PlaceHolder runat="server" Visible='<%# Convert.ToString(Eval("AuthorRole")) != "Tutor" %>'><%#: Eval("AuthorName") %></asp:PlaceHolder><asp:PlaceHolder runat="server" Visible='<%# !string.IsNullOrEmpty(Eval("AuthorBadgeName") as string) %>'><span class='cl-earned-badge tier-<%#: Eval("AuthorBadgeTier") %>' title="Featured earned badge">&#9733; <%#: Eval("AuthorBadgeName") %></span></asp:PlaceHolder></strong>
-                                                <%# BadgesHtml((int)Eval("AuthorId"), (string)Eval("AuthorRole"), CurrentInstructorId) %>
+                                                <%# BadgesHtml((int)Eval("AuthorId"), (string)Eval("AuthorRole")) %>
                                                 <time title="<%#: TutorDisplayHelper.LocalDateTime((DateTime)Eval("CreatedAt")) %>"><%#: TutorDisplayHelper.TimeAgo((DateTime)Eval("CreatedAt")) %></time>
                                                 <asp:PlaceHolder ID="phReplyActions" runat="server" Visible='<%# IsMine((int)Eval("AuthorId")) %>'>
                                                     <span class="cl-reply-actions">
@@ -229,7 +229,7 @@
                 <ul class="cl-checklist">
                     <li>Choose General for community topics, or the course your question is about.</li>
                     <li>Give your discussion a clear title and include any error message or code.</li>
-                    <li>Reply to help others. Your replies show a <strong>Tutor</strong> badge, or <strong>Instructor</strong> in your own courses.</li>
+                    <li>Reply to help others. Your replies show a <strong>Tutor</strong> badge.</li>
                     <li>You can edit or delete only your own posts and replies.</li>
                 </ul>
             </section>

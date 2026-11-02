@@ -215,6 +215,7 @@ namespace CodeLab.DAL
             List<TutorCourseSummary> courses = new List<TutorCourseSummary>();
             string query = @"SELECT c.Id, c.Title, c.Category, c.Difficulty, c.Status, c.UpdatedAt, c.ThumbnailUrl,
                                     CASE WHEN c.RejectionReason IS NULL THEN 0 ELSE 1 END AS HasFeedback,
+                                    c.LockReason,
                                     (SELECT COUNT(*) FROM Lessons l WHERE l.CourseId = c.Id) AS LessonCount,
                                     (SELECT COUNT(*) FROM CourseEnrollments e WHERE e.CourseId = c.Id) AS StudentCount
                              FROM Courses c
@@ -243,6 +244,7 @@ namespace CodeLab.DAL
                                 StudentCount = Convert.ToInt32(reader["StudentCount"]),
                                 UpdatedAt = Convert.ToDateTime(reader["UpdatedAt"]),
                                 HasFeedback = Convert.ToInt32(reader["HasFeedback"]) == 1,
+                                LockReason = reader["LockReason"] as string,
                                 ThumbnailUrl = reader["ThumbnailUrl"] as string
                             });
                         }
