@@ -15,9 +15,25 @@ CodeLab is an interactive learning and quiz platform built with ASP.NET Web Form
 * `sqlcmd` available on your `PATH`.
 
 ### 2. Create the database
-Run `CodeLab\App_Data\SetupDatabase.cmd`. It creates `Database.mdf` in LocalDB and runs `Schema.sql` and `Seed.sql`. To rebuild, delete `Database.mdf` and `Database_log.ldf` first.
+Stop the site, then run `CodeLab\App_Data\SetupDatabase.cmd`. It builds `App_Data\Database.mdf` in LocalDB, creating the file first if it does not exist, by running three scripts in order:
 
-The seed creates one account per role (development only, the passwords are public): `admin / Admin@123`, `tutor / Tutor@123`, `learner / Learner@123`.
+1. `DropAllTables.sql` deletes every table and all data, so each run starts clean.
+2. `Schema.sql` creates the tables.
+3. `DemoData.sql` adds the demo accounts, courses, lessons, quizzes, coding challenges and learner progress.
+
+It asks before deleting anything. Run `SetupDatabase.cmd /y` to skip the question. Run it again whenever you want a fresh copy of the demo data.
+
+Demo accounts (development only, the passwords are public, so never use this data on a real server):
+
+| Role | Accounts | Password |
+|---|---|---|
+| Admin | `admin` | `Admin@123` |
+| Tutor | `tutor`, `grace`, `ada` | `Tutor@123` |
+| Tutor applicants, waiting for review | `helena`, `marcus` | `Tutor@123` |
+| Learner | `learner`, `alice`, `ben`, `chloe`, `daniel`, `emma`, `farid`, `gracelee`, `hiro` | `Learner@123` |
+| Suspended learner | `ivan` | `Learner@123` |
+
+Course covers and profile photos are files in `CodeLab/Uploads/Covers` and `CodeLab/Uploads/Avatars`. The demo data only stores their paths, so keep those files.
 
 ---
 
@@ -31,6 +47,7 @@ Security is enforced at two distinct boundaries:
 
 * **Forms Authentication Cookie**: The security authority. Holds the encrypted ticket with the username and `UserData` (`UserID|Role`). ASP.NET validates it on every request; `Global.asax.cs` then reads the role from the ticket so the folder `Web.config` rules can use it.
 * **Session State**: Fast server-memory cache of `UserID`, `Username`, `FullName` and `Role`, read through `SessionHelper`. If the session is lost while the cookie is still valid, it is rebuilt from the cookie ticket (the full name is reloaded from the database).
+* **Account check**: once per page request, `Global.asax.cs` (`Application_PostAcquireRequestState`) asks the database whether the account is still Active and still has the role in the ticket. If not, it signs the user out and sends them to the login page with a message, so an admin's suspension or role change applies on the user's next click.
 * Both the cookie (`<forms timeout="60">`) and the session (`<sessionState timeout="60">`) last 60 minutes; the cookie slides.
 
 ```text
@@ -94,7 +111,10 @@ sequenceDiagram
     Global->>Guard: Passes request to Web.config guard
     Note over Guard: Checks: Context.User.IsInRole("Admin")?<br/>Matches: <allow roles="Admin" />
     
-    Guard->>Master: Permission granted! Start rendering page
+    Guard->>Global: Permission granted
+    Note over Global: Application_PostAcquireRequestState():<br/>Asks the database whether the account is still Active<br/>with the same role. If not: sign out, redirect to Login
+
+    Global->>Master: Start rendering page
     Note over Master: Checks Session<br/>(If session expired, auto-restores it from the cookie ticket)
     
     Master->>Page: Render HTML & Audit Grid
@@ -104,8 +124,7 @@ sequenceDiagram
 ### Known limitations and production checklist
 
 * **Logout does not revoke copied cookies.** Forms authentication is stateless: a copy of the cookie saved before logout is still accepted until it expires (60 minutes).
-* **Nothing re-checks the database after login.** Suspending a user will not log them out until their cookie expires. If an admin "suspend" feature is added, add a status check per request in `Global.asax.cs`.
-* **Role changes need a new login.** The role lives in the cookie ticket, so a changed role only applies after the user signs in again.
+* **Suspensions and role changes apply on the next page request.** The account check runs once per page (images and scripts skip it), not in the middle of a request. If the database is down, the check lets users stay signed in, so a database problem cannot sign everyone out.
 * **Set `requireSSL="true"`** on the `<forms>` element (for example with a `Web.Release.config` transform) and serve the site over HTTPS in production.
 
 ---
@@ -117,7 +136,7 @@ CodeLab/                          # Repository root
 ├── README.md                     # Project overview and quickstart
 ├── CONTRIBUTING.md               # Detailed architectural & coding rules
 └── CodeLab/                      # Visual Studio Web Application Project
-    ├── App_Data/                 # Database scripts & SetupDatabase.cmd
+    ├── App_Data/                 # SetupDatabase.cmd, DropAllTables.sql, Schema.sql, DemoData.sql
     ├── App_Start/                # RouteConfig & BundleConfig
     ├── Models/                   # Plain Old CLR Objects (POCOs)
     ├── DAL/                      # Data Access Layer (ADO.NET SQL queries)
@@ -126,7 +145,7 @@ CodeLab/                          # Repository root
     ├── Content/                  # CSS design tokens & Bootstrap
     ├── Scripts/                  # Client-side JavaScript
     ├── Modules/                  # Role-based feature pages
-    │   ├── Admin/                # Admin only (AuditLogs)
+    │   ├── Admin/                # Admin only (Dashboard, Users, Courses, TutorApplications, AuditLogs, Backups)
     │   ├── Tutor/                # Tutor & Admin (CourseEditor, LessonEditor, QuizEditor, ChallengeEditor, Profile, ...)
     │   ├── Learner/              # Learner only (Dashboard, Courses, Curriculum, Discussion pages, ...)
     │   └── Public/               # Anonymous (Login, Register, Courses, CourseDetails)
