@@ -569,6 +569,20 @@
     white-space: nowrap;
 }
 
+.cl-admin-row-actions .cl-admin-action-primary {
+    min-width: 88px;
+}
+
+.cl-admin-action-spacer {
+    display: inline-block;
+    width: 34px;
+    min-width: 34px;
+    height: 32px;
+    flex-shrink: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
 /* Bootstrap's own hover colour still applies, so each action shows what it does when pointed at */
 .cl-admin-row-actions .btn-outline-warning,
 .cl-admin-row-actions .btn-outline-success,

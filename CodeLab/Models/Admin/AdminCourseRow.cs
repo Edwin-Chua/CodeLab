@@ -44,6 +44,18 @@ namespace CodeLab.Models
             get { return Status == CourseStatuses.Locked; }
         }
 
+        // True if there is a quick status-change action (Approve, Lock, or Unlock)
+        public bool HasMiddleAction
+        {
+            get { return CanApproveOrReject || CanLock || CanUnlock; }
+        }
+
+        // Actionable "Review" for pending moderation; read-only "View" otherwise
+        public string PrimaryActionText
+        {
+            get { return CanApproveOrReject ? "Review" : "View"; }
+        }
+
         /// <summary>
         /// The admin's feedback that applies to the current status: why it is Locked, or why a Draft was sent back.
         /// </summary>
