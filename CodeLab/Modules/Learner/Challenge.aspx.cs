@@ -16,6 +16,17 @@ namespace CodeLab.Modules.Learner
     public partial class Challenge : Page
     {
         protected string AiFeedback { get; private set; }
+        protected bool IsMarkup { get { return currentChallenge != null && LearnerChallengeDetailManager.IsMarkupChallenge(currentChallenge.Language); } }
+        protected bool PreviewReady { get; private set; }
+        protected string PreviewDocument
+        {
+            get
+            {
+                // The CSP comes before any student markup. The iframe also has an empty sandbox.
+                return "<!doctype html><meta charset=\"utf-8\"><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; form-action 'none'; base-uri 'none'\">"
+                    + (txtCode.Text ?? "");
+            }
+        }
         private readonly LearnerChallengeDetailManager manager =
             new LearnerChallengeDetailManager();
 
@@ -126,6 +137,7 @@ namespace CodeLab.Modules.Learner
                 challenge.Difficulty);
 
             bool supported = IsSupportedLanguage(challenge.Language);
+            btnRun.Text = IsMarkup ? "Preview" : "Run Code";
 
             if (!IsPostBack)
             {
@@ -134,8 +146,8 @@ namespace CodeLab.Modules.Learner
                 lblExecutionStatus.Text = "Not run";
 
                 litOutput.Text = supported
-                    ? "Click Run Code to execute your Python program."
-                    : "Code execution currently supports Python challenges only.";
+                    ? (IsMarkup ? "Click Preview to view your HTML/CSS. Submit for AI source review." : "Click Run Code to execute your program. SQL challenges use SQLite.")
+                    : "This challenge language is not supported by the execution sandbox.";
             }
 
             // Always use the database value as the reset source.
@@ -144,14 +156,14 @@ namespace CodeLab.Modules.Learner
             btnRun.Enabled = supported;
 
             btnRun.ToolTip = supported
-                ? "Run your code without saving a submission."
-                : "Code execution currently supports Python challenges only.";
+                ? (IsMarkup ? "Preview HTML/CSS without saving or awarding XP." : "Run your code without saving a submission.")
+                : "This challenge language is not supported by the execution sandbox.";
 
             btnSubmit.Enabled = supported;
 
             btnSubmit.ToolTip = supported
-                ? "Run your code, check the output, and save your submission."
-                : "Submission currently supports Python challenges only.";
+                ? (IsMarkup ? "Review your HTML/CSS requirements with Gemini and save your submission." : "Run your code, check the output, and save your submission.")
+                : "This challenge language is not supported by the execution sandbox.";
         }
 
         protected void btnRun_Click(object sender, EventArgs e)
@@ -165,7 +177,7 @@ namespace CodeLab.Modules.Learner
             {
                 lblExecutionStatus.Text = "Unavailable";
                 litOutput.Text =
-                    "Code execution currently supports Python challenges only.";
+                    "This challenge language is not supported by the execution sandbox.";
                 return;
             }
 
@@ -173,6 +185,18 @@ namespace CodeLab.Modules.Learner
             string language = currentChallenge.Language;
             string code = txtCode.Text ?? string.Empty;
 
+            if (IsMarkup)
+            {
+                if (string.IsNullOrWhiteSpace(code) || code.Length > 20000)
+                {
+                    litOutput.Text = "Enter HTML/CSS between 1 and 20,000 characters to preview.";
+                    return;
+                }
+                PreviewReady = true;
+                lblExecutionStatus.Text = "Preview ready";
+                litOutput.Text = "Preview only. Scripts and external assets are disabled. Submit for AI review; previewing does not award XP.";
+                return;
+            }
             RegisterAsyncTask(new PageAsyncTask(
                 () => RunCodeAsync(language, code)));
         }
@@ -236,12 +260,8 @@ namespace CodeLab.Modules.Learner
 
         private static bool IsSupportedLanguage(string language)
         {
-            string value =
-                (language ?? string.Empty).Trim().ToLowerInvariant();
-
-            return value == "python" || value == "python3";
+            return LearnerChallengeDetailManager.IsMarkupChallenge(language) || JDoodleExecutionService.IsSupportedLanguage(language);
         }
-
         private static string GetDifficultyCssClass(string difficulty)
         {
             switch ((difficulty ?? string.Empty).Trim().ToLowerInvariant())
@@ -288,6 +308,11 @@ namespace CodeLab.Modules.Learner
                 case "csharp":
                     return "Program.cs";
 
+                case "html": return "index.html";
+                case "perl": return "solution.pl";
+                case "php": return "solution.php";
+                case "bash": case "shell": return "solution.sh";
+                case "sql": case "sqlite": return "solution.sql";
                 default:
                     return "solution.txt";
             }
@@ -310,7 +335,7 @@ namespace CodeLab.Modules.Learner
             {
                 lblExecutionStatus.Text = "Unavailable";
                 litOutput.Text =
-                    "Submission currently supports Python challenges only.";
+                    "This challenge language is not supported by the execution sandbox.";
                 return;
             }
 
@@ -384,6 +409,7 @@ namespace CodeLab.Modules.Learner
             int challengeId,
             string code)
         {
+            PreviewReady = IsMarkup && !string.IsNullOrWhiteSpace(code) && code.Length <= 20000;
             ChallengeSubmissionResult result =
                 await manager.SubmitAsync(learnerId, challengeId, code);
 
@@ -435,7 +461,7 @@ namespace CodeLab.Modules.Learner
                 lblExecutionStatus.Text = result.Status;
 
                 message =
-                    result.Status == "Pending review" ? "Your output matched, but AI approval is pending. No XP was awarded. Submit again to retry the review." : "Your submission did not pass the output check or AI review. Read the feedback below and try again.";
+                    result.Status == "Pending review" ? (IsMarkup ? "AI review is pending. No XP was awarded. Submit again to retry the review." : "Your output matched, but AI approval is pending. No XP was awarded. Submit again to retry the review.") : (IsMarkup ? "Your HTML/CSS did not meet the review requirements. Read the feedback and try again." : "Your submission did not pass the output check or AI review. Read the feedback below and try again.");
             }
 
             litOutput.Text =
@@ -490,70 +516,5 @@ namespace CodeLab.Modules.Learner
             }
         }
 
-        protected override void OnPreRender(EventArgs e)
-        {
-            if (canAccessChallenge && currentChallenge != null)
-            {
-                BindChallengeSwitcher();
-            }
-
-            base.OnPreRender(e);
-        }
-
-        private void BindChallengeSwitcher()
-        {
-            chChallengeSelect.Items.Clear();
-
-            try
-            {
-                var challengeManager = new LearnerChallengeManager();
-
-                var challenges = challengeManager.List(
-                    SessionHelper.GetCurrentUserID());
-
-                foreach (var challenge in challenges)
-                {
-                    if (challenge.CourseId != currentChallenge.CourseId)
-                    {
-                        continue;
-                    }
-
-                    string label = challenge.IsSolved
-                        ? "\u2713 " + challenge.Title
-                        : challenge.Title;
-
-                    chChallengeSelect.Items.Add(new ListItem(
-                        label,
-                        challenge.Id.ToString(CultureInfo.InvariantCulture)));
-                }
-
-                string currentId = currentChallenge.Id.ToString(
-                    CultureInfo.InvariantCulture);
-
-                if (chChallengeSelect.Items.FindByValue(currentId) == null)
-                {
-                    chChallengeSelect.Items.Add(new ListItem(
-                        currentChallenge.Title,
-                        currentId));
-                }
-
-                chChallengeSelect.SelectedValue = currentId;
-                chChallengeSelect.Enabled = chChallengeSelect.Items.Count > 1;
-            }
-            catch (SqlException ex)
-            {
-                System.Diagnostics.Trace.TraceError(
-                    "Challenge switcher could not load: {0}", ex);
-
-                chChallengeSelect.Items.Clear();
-
-                chChallengeSelect.Items.Add(new ListItem(
-                    currentChallenge.Title,
-                    currentChallenge.Id.ToString(
-                        CultureInfo.InvariantCulture)));
-
-                chChallengeSelect.Enabled = false;
-            }
-        }
     }
 }
