@@ -63,7 +63,7 @@ namespace CodeLab.Modules.Admin
             TutorProfile application = result.Data;
             Title = application.FullName + " - Tutor Application";
 
-            litInitials.Text = DisplayHelper.Initials(application.FullName);
+            litAvatar.Text = DisplayHelper.AvatarHtml(application.FullName, application.AvatarUrl, "cl-admin-avatar-lg");
             litName.Text = application.FullName;
             litSpecialty.Text = application.Specialty;
             litUsername.Text = application.Username;

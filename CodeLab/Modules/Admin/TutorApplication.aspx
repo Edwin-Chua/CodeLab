@@ -14,7 +14,7 @@
             <div class="col-lg-8">
                 <section class="cl-card cl-admin-panel">
                     <div class="cl-admin-applicant">
-                        <span class="cl-admin-avatar cl-admin-avatar-lg" aria-hidden="true"><asp:Literal ID="litInitials" runat="server" Mode="Encode" /></span>
+                        <asp:Literal ID="litAvatar" runat="server" />
                         <div>
                             <h2><asp:Literal ID="litName" runat="server" Mode="Encode" /></h2>
                             <span class="cl-admin-meta"><asp:Literal ID="litSpecialty" runat="server" Mode="Encode" /></span>

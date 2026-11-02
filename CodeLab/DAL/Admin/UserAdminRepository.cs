@@ -12,7 +12,7 @@ namespace CodeLab.DAL
         // HasActivity covers every table that points at Users without ON DELETE CASCADE. TutorProfiles and
         // LearnerStats cascade, so they are left out. A table added with such a link must be added here too.
         private const string SelectUsers =
-            @"SELECT u.Id, u.FullName, u.Username, u.Email, u.Role, u.Status, u.JoinedDate, u.LastLogin,
+            @"SELECT u.Id, u.FullName, u.Username, u.Email, u.Role, u.Status, u.AvatarUrl, u.JoinedDate, u.LastLogin,
                      (SELECT COUNT(*) FROM Courses c WHERE c.InstructorId = u.Id) AS CourseCount,
                      CASE WHEN EXISTS (SELECT 1 FROM Courses WHERE InstructorId = u.Id)
                             OR EXISTS (SELECT 1 FROM CourseEnrollments WHERE LearnerId = u.Id)
@@ -215,6 +215,7 @@ namespace CodeLab.DAL
                 Email = reader["Email"].ToString(),
                 Role = reader["Role"].ToString(),
                 Status = reader["Status"].ToString(),
+                AvatarUrl = reader["AvatarUrl"] == DBNull.Value ? null : reader["AvatarUrl"].ToString(),
                 JoinedDate = Convert.ToDateTime(reader["JoinedDate"]),
                 LastLogin = reader["LastLogin"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["LastLogin"]),
                 CourseCount = Convert.ToInt32(reader["CourseCount"]),

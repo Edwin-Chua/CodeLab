@@ -1,4 +1,5 @@
 using System;
+using System.Web;
 using CodeLab.Models;
 
 namespace CodeLab.Helpers
@@ -37,6 +38,28 @@ namespace CodeLab.Helpers
             return words.Length == 1
                 ? first.ToUpperInvariant()
                 : (first + words[words.Length - 1].Substring(0, 1)).ToUpperInvariant();
+        }
+
+        /// <summary>
+        /// Renders an admin avatar element: a circular image if AvatarUrl is present, or initials in a circle otherwise.
+        /// </summary>
+        public static string AvatarHtml(string name, string avatarUrl, string extraCssClass = null)
+        {
+            string initials = Initials(name);
+            string css = string.IsNullOrWhiteSpace(extraCssClass) ? "cl-admin-avatar" : "cl-admin-avatar " + extraCssClass;
+
+            if (string.IsNullOrWhiteSpace(avatarUrl))
+            {
+                return "<span class=\"" + css + "\" aria-hidden=\"true\">" + HttpUtility.HtmlEncode(initials) + "</span>";
+            }
+
+            string browserUrl = avatarUrl.StartsWith("~/", StringComparison.Ordinal)
+                ? VirtualPathUtility.ToAbsolute(avatarUrl)
+                : avatarUrl;
+
+            return "<span class=\"" + css + "\"><img src=\"" + HttpUtility.HtmlAttributeEncode(browserUrl)
+                + "\" alt=\"\" referrerpolicy=\"no-referrer\" onerror=\"this.style.display='none';this.parentElement.textContent='"
+                + HttpUtility.JavaScriptStringEncode(initials) + "';\" /></span>";
         }
 
         /// <summary>
