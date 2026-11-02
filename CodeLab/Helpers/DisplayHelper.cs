@@ -125,6 +125,7 @@ namespace CodeLab.Helpers
             {
                 case AuditCategories.Security: return "cl-admin-badge-rejected";
                 case AuditCategories.Administrative: return "cl-admin-badge-info";
+                case AuditCategories.Content: return "cl-admin-badge-approved";
                 case AuditCategories.Deletion: return "cl-admin-badge-pending";
                 default: return "cl-admin-badge-neutral";
             }
