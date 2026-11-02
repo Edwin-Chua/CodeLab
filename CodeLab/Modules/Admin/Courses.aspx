@@ -65,9 +65,9 @@
                     <td class="text-end"><%# Eval("StudentCount") %></td>
                     <td>
                         <div class="cl-admin-row-actions">
-                            <asp:HyperLink runat="server" CssClass='<%# (bool)Eval("CanApproveOrReject") ? "btn btn-primary btn-sm" : "btn cl-btn-outline btn-sm" %>'
+                            <asp:HyperLink runat="server" CssClass='<%# (bool)Eval("CanApproveOrReject") ? "btn btn-primary btn-sm cl-admin-action-primary" : "btn cl-btn-outline btn-sm cl-admin-action-primary" %>'
                                 NavigateUrl='<%# "~/Modules/Admin/CourseReview?id=" + Eval("Id") %>'>
-                                <i data-lucide="eye" class="cl-icon" aria-hidden="true"></i> Review
+                                <i data-lucide="eye" class="cl-icon" aria-hidden="true"></i> <%#: Eval("PrimaryActionText") %>
                             </asp:HyperLink>
                             <asp:LinkButton runat="server" CssClass="btn btn-success btn-sm" CausesValidation="false" ToolTip="Approve and publish" aria-label="Approve and publish"
                                 CommandName="Approve" CommandArgument='<%# Eval("Id") %>' Visible='<%# (bool)Eval("CanApproveOrReject") %>'
@@ -83,6 +83,9 @@
                                 OnClientClick="return confirm('Unlock this course? It will be published again.');">
                                 <i data-lucide="lock-open" class="cl-icon" aria-hidden="true"></i>
                             </asp:LinkButton>
+                            <asp:PlaceHolder runat="server" Visible='<%# !(bool)Eval("HasMiddleAction") %>'>
+                                <span class="cl-admin-action-spacer" aria-hidden="true"></span>
+                            </asp:PlaceHolder>
                             <asp:LinkButton runat="server" CssClass="btn btn-outline-danger btn-sm" CausesValidation="false" ToolTip="Delete permanently" aria-label="Delete"
                                 CommandName="Delete" CommandArgument='<%# Eval("Id") %>'
                                 OnClientClick='<%# DisplayHelper.CourseDeleteConfirm((int)Eval("StudentCount")) %>'>

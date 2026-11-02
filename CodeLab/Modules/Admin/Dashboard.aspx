@@ -22,7 +22,7 @@
                     <HeaderTemplate><ul class="cl-admin-list"></HeaderTemplate>
                     <ItemTemplate>
                         <li class="cl-admin-list-item">
-                            <span class="cl-admin-avatar" aria-hidden="true"><%#: DisplayHelper.Initials((string)Eval("FullName")) %></span>
+                            <%# DisplayHelper.AvatarHtml((string)Eval("FullName"), (string)Eval("AvatarUrl")) %>
                             <div class="cl-admin-list-text">
                                 <strong><%#: Eval("FullName") %></strong>
                                 <span><%#: Eval("Specialty") %>, applied <%#: DisplayHelper.TimeAgo((DateTime)Eval("AppliedAt")) %></span>
@@ -94,7 +94,7 @@
                     <HeaderTemplate><ul class="cl-admin-list"></HeaderTemplate>
                     <ItemTemplate>
                         <li class="cl-admin-list-item">
-                            <span class="cl-admin-avatar" aria-hidden="true"><%#: DisplayHelper.Initials((string)Eval("FullName")) %></span>
+                            <%# DisplayHelper.AvatarHtml((string)Eval("FullName"), (string)Eval("AvatarUrl")) %>
                             <div class="cl-admin-list-text">
                                 <strong><%#: Eval("FullName") %></strong>
                                 <span><%#: Eval("Email") %></span>

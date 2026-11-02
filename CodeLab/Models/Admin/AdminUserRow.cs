@@ -1,7 +1,7 @@
 namespace CodeLab.Models
 {
     /// <summary>
-    /// One account as an admin sees it. PasswordHash and AvatarUrl are not filled.
+    /// One account as an admin sees it. PasswordHash is not filled.
     /// </summary>
     public class AdminUserRow : User
     {

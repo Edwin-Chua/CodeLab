@@ -33,13 +33,13 @@ namespace CodeLab.Modules.Admin
         protected global::System.Web.UI.WebControls.PlaceHolder phApplication;
 
         /// <summary>
-        /// litInitials control.
+        /// litAvatar control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Literal litInitials;
+        protected global::System.Web.UI.WebControls.Literal litAvatar;
 
         /// <summary>
         /// litName control.
