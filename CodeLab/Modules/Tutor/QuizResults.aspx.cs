@@ -69,6 +69,8 @@ namespace CodeLab.Modules.Tutor
             rptQuizzes.DataSource = result.Data;
             rptQuizzes.DataBind();
             rptQuizzes.Visible = result.Data.Count > 0;
+            litCourseOptions.Text = TutorDisplayHelper.CourseOptionsHtml(result.Data.Select(q => q.CourseTitle));
+            phCourseFilter.Visible = result.Data.Count > 0;
             phNoQuizzes.Visible = result.Data.Count == 0;
             phOverview.Visible = true;
         }

@@ -4314,6 +4314,35 @@ pre.cl-output {
     vertical-align: middle;
 }
 
+/* Tighter cells so every column fits without scrolling sideways */
+.cl-results-table th,
+.cl-results-table td {
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.cl-results-table th {
+    white-space: normal;
+}
+
+.cl-results-table th:first-child,
+.cl-results-table td:first-child {
+    padding-left: 20px;
+}
+
+.cl-results-table th:last-child,
+.cl-results-table td:last-child {
+    width: 1%;
+    padding-right: 20px;
+    white-space: nowrap;
+}
+
+/* The name column takes the spare width; the button column stays as small as its button */
+.cl-results-table .cl-table-title {
+    width: 34%;
+    min-width: 160px;
+}
+
 .cl-row-link {
     color: inherit;
     text-decoration: none;

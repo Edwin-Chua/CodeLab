@@ -2,7 +2,7 @@
  * Shared by the Tutor results pages (Quiz Results, Coding Results). Read-only: nothing is posted.
  *
  * 1. Table filters inside [data-results-table]: learner search [data-filter-search], result select
- *    [data-filter-result]. Rows carry data-name and data-result.
+ *    [data-filter-result], course select [data-filter-course]. Rows carry data-name, data-result and data-course.
  * 2. Quiz answer review: buttons [data-review-filter="all|wrong|correct"] show matching [data-review] items.
  * 3. Syntax colours (highlight.js, if loaded) for submitted code.
  */
@@ -12,6 +12,7 @@
     function initTable(card) {
         var search = card.querySelector('[data-filter-search]');
         var result = card.querySelector('[data-filter-result]');
+        var course = card.querySelector('[data-filter-course]');
         var empty = card.querySelector('[data-filter-empty]');
         var rows = card.querySelectorAll('tbody tr');
         if (!rows.length) { return; }
@@ -19,11 +20,13 @@
         function apply() {
             var text = search ? search.value.trim().toLowerCase() : '';
             var wanted = result ? result.value : '';
+            var wantedCourse = course ? course.value : '';
             var shown = 0;
 
             rows.forEach(function (row) {
                 var match = (!text || (row.getAttribute('data-name') || '').indexOf(text) !== -1)
-                    && (!wanted || row.getAttribute('data-result') === wanted);
+                    && (!wanted || row.getAttribute('data-result') === wanted)
+                    && (!wantedCourse || row.getAttribute('data-course') === wantedCourse);
                 row.hidden = !match;
                 if (match) { shown++; }
             });
@@ -31,7 +34,7 @@
             if (empty) { empty.hidden = shown > 0; }
         }
 
-        [search, result].forEach(function (control) {
+        [search, result, course].forEach(function (control) {
             if (control) {
                 control.addEventListener('input', apply);
                 control.addEventListener('change', apply);

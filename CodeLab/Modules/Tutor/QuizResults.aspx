@@ -1,4 +1,4 @@
-<%@ Page Title="Quiz Results"Language="C#" MasterPageFile="~/Modules/Tutor/Tutor.Master" AutoEventWireup="true" CodeBehind="QuizResults.aspx.cs" Inherits="CodeLab.Modules.Tutor.QuizResults" %>
+<%@ Page Title="Quiz Results" Language="C#" MasterPageFile="~/Modules/Tutor/Tutor.Master" AutoEventWireup="true" CodeBehind="QuizResults.aspx.cs" Inherits="CodeLab.Modules.Tutor.QuizResults" %>
 <%@ MasterType VirtualPath="~/Modules/Tutor/Tutor.Master" %>
 <%@ Import Namespace="CodeLab.Models" %>
 <%@ Import Namespace="CodeLab.Helpers" %>
@@ -39,10 +39,20 @@
 
     <%-- ===== 1. All quizzes ===== --%>
     <asp:PlaceHolder ID="phOverview" runat="server" Visible="false">
-        <section class="cl-card cl-table-card">
-            <div class="cl-table-card-header">
-                <h2>Quizzes in your published courses</h2>
-                <p>A learner counts as completed once one of their attempts reaches the pass mark. Open a quiz to see every attempt.</p>
+        <section class="cl-card cl-table-card" data-results-table>
+            <div class="cl-table-card-header cl-results-toolbar">
+                <div>
+                    <h2>Quizzes in your published courses</h2>
+                    <p>A learner counts as completed once one of their attempts reaches the pass mark. Open a quiz to see every attempt.</p>
+                </div>
+                <asp:PlaceHolder ID="phCourseFilter" runat="server" Visible="false">
+                    <div class="cl-results-filters">
+                        <select class="form-select" aria-label="Course" data-filter-course>
+                            <option value="">All courses</option>
+                            <asp:Literal ID="litCourseOptions" runat="server" Mode="PassThrough" />
+                        </select>
+                    </div>
+                </asp:PlaceHolder>
             </div>
             <asp:Repeater ID="rptQuizzes" runat="server">
                 <HeaderTemplate>
@@ -52,7 +62,7 @@
                         <tbody>
                 </HeaderTemplate>
                 <ItemTemplate>
-                    <tr>
+                    <tr data-course="<%#: Eval("CourseTitle") %>">
                         <td class="cl-table-title"><a class="cl-row-link" href="<%#: QuizUrl((int)Eval("QuizId")) %>"><%#: Eval("QuizTitle") %></a><small class="cl-table-sub"><%#: Eval("CourseTitle") %></small></td>
                         <td><%# Eval("QuestionCount") %></td>
                         <td><%# Eval("LearnerCount") %></td>
@@ -64,6 +74,7 @@
                 </ItemTemplate>
                 <FooterTemplate></tbody></table></div></FooterTemplate>
             </asp:Repeater>
+            <div class="cl-empty cl-empty-sm" data-filter-empty hidden><p>No quizzes in this course.</p></div>
             <asp:PlaceHolder ID="phNoQuizzes" runat="server" Visible="false">
                 <div class="cl-empty">
                     <span class="cl-builder-icon cl-tone-pink"><i data-lucide="list-checks" class="cl-icon" aria-hidden="true"></i></span>

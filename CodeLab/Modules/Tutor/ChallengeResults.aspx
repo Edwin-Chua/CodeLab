@@ -38,10 +38,20 @@
 
     <%-- ===== 1. All challenges ===== --%>
     <asp:PlaceHolder ID="phOverview" runat="server" Visible="false">
-        <section class="cl-card cl-table-card">
-            <div class="cl-table-card-header">
-                <h2>Coding challenges in your published courses</h2>
-                <p>A learner counts as solved once one of their submissions passes. Open a challenge to see every submission.</p>
+        <section class="cl-card cl-table-card" data-results-table>
+            <div class="cl-table-card-header cl-results-toolbar">
+                <div>
+                    <h2>Coding challenges in your published courses</h2>
+                    <p>A learner counts as solved once one of their submissions passes. Open a challenge to see every submission.</p>
+                </div>
+                <asp:PlaceHolder ID="phCourseFilter" runat="server" Visible="false">
+                    <div class="cl-results-filters">
+                        <select class="form-select" aria-label="Course" data-filter-course>
+                            <option value="">All courses</option>
+                            <asp:Literal ID="litCourseOptions" runat="server" Mode="PassThrough" />
+                        </select>
+                    </div>
+                </asp:PlaceHolder>
             </div>
             <asp:Repeater ID="rptChallenges" runat="server">
                 <HeaderTemplate>
@@ -51,7 +61,7 @@
                         <tbody>
                 </HeaderTemplate>
                 <ItemTemplate>
-                    <tr>
+                    <tr data-course="<%#: Eval("CourseTitle") %>">
                         <td class="cl-table-title"><a class="cl-row-link" href="<%#: ChallengeUrl((int)Eval("ChallengeId")) %>"><%#: Eval("Title") %></a><small class="cl-table-sub"><%#: Eval("CourseTitle") %></small></td>
                         <td><span class="cl-code-chip"><%#: TutorDisplayHelper.LanguageName((string)Eval("Language")) %></span></td>
                         <td><%# Eval("LearnerCount") %></td>
@@ -62,6 +72,7 @@
                 </ItemTemplate>
                 <FooterTemplate></tbody></table></div></FooterTemplate>
             </asp:Repeater>
+            <div class="cl-empty cl-empty-sm" data-filter-empty hidden><p>No coding challenges in this course.</p></div>
             <asp:PlaceHolder ID="phNoChallenges" runat="server" Visible="false">
                 <div class="cl-empty">
                     <span class="cl-builder-icon cl-tone-pink"><i data-lucide="code" class="cl-icon" aria-hidden="true"></i></span>

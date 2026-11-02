@@ -94,6 +94,25 @@ namespace CodeLab.Helpers
                 : "Out of " + enrolled + (enrolled == 1 ? " enrolled learner" : " enrolled learners");
         }
 
+        // <option> tags for a course filter: each course once, A to Z (the value is the course title)
+        public static string CourseOptionsHtml(IEnumerable<string> courseTitles)
+        {
+            SortedSet<string> titles = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string title in courseTitles)
+            {
+                if (!string.IsNullOrWhiteSpace(title)) titles.Add(title);
+            }
+
+            System.Text.StringBuilder html = new System.Text.StringBuilder();
+            foreach (string title in titles)
+            {
+                html.Append("<option value=\"").Append(HttpUtility.HtmlAttributeEncode(title)).Append("\">")
+                    .Append(HttpUtility.HtmlEncode(title)).Append("</option>");
+            }
+
+            return html.ToString();
+        }
+
         // One breadcrumb link followed by the ">" separator
         public static string Crumb(string text, string url)
         {

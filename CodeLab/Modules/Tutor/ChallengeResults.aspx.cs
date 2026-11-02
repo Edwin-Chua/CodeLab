@@ -71,6 +71,8 @@ namespace CodeLab.Modules.Tutor
             rptChallenges.DataSource = result.Data;
             rptChallenges.DataBind();
             rptChallenges.Visible = result.Data.Count > 0;
+            litCourseOptions.Text = TutorDisplayHelper.CourseOptionsHtml(result.Data.Select(c => c.CourseTitle));
+            phCourseFilter.Visible = result.Data.Count > 0;
             phNoChallenges.Visible = result.Data.Count == 0;
             phOverview.Visible = true;
         }
