@@ -292,34 +292,33 @@ JOIN dbo.Quizzes q ON q.Title = v.QuizTitle
 WHERE NOT EXISTS (SELECT 1 FROM dbo.QuizQuestions x WHERE x.QuizId = q.Id AND x.OrderIndex = v.OrderIndex);
 
 -- =====================================
--- Coding challenges
+-- Coding challenges: ONE per course, the same rule the Tutor pages enforce (ChallengeManager)
 -- =====================================
+
+-- Older versions of this script added 2 or 3 challenges to some courses. Keep each course's
+-- first challenge and remove the rest; their code submissions are removed with them (ON DELETE CASCADE).
+DELETE ch
+FROM dbo.CodingChallenges ch
+WHERE EXISTS (SELECT 1 FROM dbo.CodingChallenges earlier
+              WHERE earlier.CourseId = ch.CourseId AND earlier.Id < ch.Id);
+
 INSERT INTO dbo.CodingChallenges (CourseId, Title, Description, Difficulty, Language, StarterCode, ExpectedOutput, PointsReward)
 SELECT c.Id, v.Title, v.Description, v.Difficulty, v.Lang, v.StarterCode, v.ExpectedOutput, v.Points
 FROM (VALUES
     (@tTS,   N'Say Hello',        N'Print exactly: Hello, CodeLab!', N'Beginner', N'javascript',
         N'// Print the greeting below' + CHAR(10), N'Hello, CodeLab!', 50),
-    (@tTS,   N'Sum an Array',     N'Print the sum of the numbers in the array.', N'Beginner', N'javascript',
-        N'const numbers = [3, 5, 7];' + CHAR(10) + N'// Print the sum of the numbers' + CHAR(10), N'15', 75),
     (@tAlgo, N'Factorial of Five', N'Print the factorial of 5 (5 x 4 x 3 x 2 x 1).', N'Intermediate', N'javascript',
         N'function factorial(n) {' + CHAR(10) + N'  // your code here' + CHAR(10) + N'}' + CHAR(10) + N'console.log(factorial(5));', N'120', 100),
-    (@tAlgo, N'Reverse a String', N'Print the word CodeLab written backwards.', N'Intermediate', N'javascript',
-        N'const word = "CodeLab";' + CHAR(10) + N'// Print it reversed' + CHAR(10), N'baLedoC', 100),
     (@tPy,   N'Hello Python',     N'Print exactly: Hello, CodeLab!', N'Beginner', N'python',
         N'# Print the greeting below' + CHAR(10), N'Hello, CodeLab!', 50),
-    (@tPy,   N'Sum of a List',    N'Print the sum of the numbers in the list.', N'Beginner', N'python',
-        N'numbers = [3, 5, 7]' + CHAR(10) + N'# Print the sum of the numbers' + CHAR(10), N'15', 75),
-    (@tPy,   N'Count the Vowels', N'Print how many vowels are in the word education.', N'Intermediate', N'python',
-        N'word = "education"' + CHAR(10) + N'# Print the number of vowels' + CHAR(10), N'5', 100),
     (@tDS,   N'Stack Pop',        N'Push 4 onto the stack, pop twice, and print the sum of the two popped values.', N'Beginner', N'python',
         N'stack = [1, 2, 3]' + CHAR(10) + N'# Push 4, then pop twice and print the sum' + CHAR(10), N'7', 75),
     (@tJS,   N'Say Hello',        N'Print exactly: Hello, CodeLab!', N'Beginner', N'javascript',
-        N'// Print the greeting below' + CHAR(10), N'Hello, CodeLab!', 50),
-    (@tJS,   N'Sum an Array',     N'Print the sum of the numbers in the array.', N'Beginner', N'javascript',
-        N'const numbers = [3, 5, 7];' + CHAR(10) + N'// Print the sum of the numbers' + CHAR(10), N'15', 75)
+        N'// Print the greeting below' + CHAR(10), N'Hello, CodeLab!', 50)
 ) v(CourseTitle, Title, Description, Difficulty, Lang, StarterCode, ExpectedOutput, Points)
 JOIN dbo.Courses c ON c.Title = v.CourseTitle
-WHERE NOT EXISTS (SELECT 1 FROM dbo.CodingChallenges x WHERE x.CourseId = c.Id AND x.Title = v.Title);
+-- Skip any course that already has a challenge, so re-running never adds a second one
+WHERE NOT EXISTS (SELECT 1 FROM dbo.CodingChallenges x WHERE x.CourseId = c.Id);
 
 -- =====================================
 -- Learner progress: enrolments and completed lessons.
@@ -392,18 +391,16 @@ WHERE NOT EXISTS (SELECT 1 FROM dbo.QuizAttempts a WHERE a.LearnerId = u.Id AND 
 INSERT INTO dbo.CodeSubmissions (LearnerId, ChallengeId, SubmittedCode, Status, OutputResult, SubmittedAt, AiFeedback)
 SELECT u.Id, ch.Id, v.Code, v.Status, v.OutputText, DATEADD(DAY, -v.DaysAgo, SYSUTCDATETIME()), v.Feedback
 FROM (VALUES
-    (N'learner',  @tPy,   N'Hello Python',     N'print("Hello, CodeLab!")', N'Passed', N'Hello, CodeLab!', 16, CAST(NULL AS NVARCHAR(MAX))),
-    (N'learner',  @tPy,   N'Sum of a List',    N'numbers = [3, 5, 7]' + CHAR(10) + N'print(sum(numbers[:2]))', N'Failed', N'8', 15,
-        N'The slice numbers[:2] leaves out the last item. Sum the whole list with sum(numbers).'),
+    -- learner and ben get one wrong attempt before their pass, so the results show Failed and Error too
+    (N'learner',  @tPy,   N'Hello Python',     N'print("Hello CodeLab")', N'Failed', N'Hello CodeLab', 17,
+        CAST(N'Close. The expected output has a comma and an exclamation mark: Hello, CodeLab!' AS NVARCHAR(MAX))),
+    (N'learner',  @tPy,   N'Hello Python',     N'print("Hello, CodeLab!")', N'Passed', N'Hello, CodeLab!', 16, NULL),
     (N'alice',    @tTS,   N'Say Hello',        N'console.log("Hello, CodeLab!");', N'Passed', N'Hello, CodeLab!', 27, NULL),
-    (N'alice',    @tTS,   N'Sum an Array',     N'const numbers = [3, 5, 7];' + CHAR(10) + N'console.log(numbers.reduce((a, b) => a + b, 0));', N'Passed', N'15', 26, NULL),
+    (N'ben',      @tPy,   N'Hello Python',     N'print(Hello, CodeLab!)', N'Error', N'SyntaxError: invalid syntax', 26,
+        N'Text must be inside quotes. Write print("Hello, CodeLab!").'),
     (N'ben',      @tPy,   N'Hello Python',     N'print("Hello, CodeLab!")', N'Passed', N'Hello, CodeLab!', 25, NULL),
-    (N'ben',      @tPy,   N'Sum of a List',    N'numbers = [3, 5, 7]' + CHAR(10) + N'print(sum(numbers))', N'Passed', N'15', 24, NULL),
-    (N'ben',      @tPy,   N'Count the Vowels', N'word = "education"' + CHAR(10) + N'print(count_vowels(word))', N'Error', N'NameError: name ''count_vowels'' is not defined', 23,
-        N'count_vowels is never defined. Loop over the letters and count the ones in "aeiou".'),
     (N'emma',     @tPy,   N'Hello Python',     N'print("Hello, CodeLab!")', N'Passed', N'Hello, CodeLab!', 19, NULL),
     (N'hiro',     @tPy,   N'Hello Python',     N'print("Hello, CodeLab!")', N'Passed', N'Hello, CodeLab!', 18, NULL),
-    (N'hiro',     @tPy,   N'Count the Vowels', N'word = "education"' + CHAR(10) + N'print(len([c for c in word if c in "aeiou"]))', N'Passed', N'5', 17, NULL),
     (N'chloe',    @tAlgo, N'Factorial of Five', N'function factorial(n) { return n * factorial(n - 1); }' + CHAR(10) + N'console.log(factorial(5));', N'Failed', N'RangeError: Maximum call stack size exceeded', 9,
         N'The recursion never stops. Return 1 when n is 1 or less.'),
     (N'gracelee', @tDS,   N'Stack Pop',        N'stack = [1, 2, 3]' + CHAR(10) + N'stack.append(4)' + CHAR(10) + N'print(stack.pop() + stack.pop())', N'Passed', N'7', 15, NULL),
@@ -413,7 +410,9 @@ FROM (VALUES
 JOIN dbo.Users u ON u.Username = v.Username
 JOIN dbo.Courses c ON c.Title = v.CourseTitle
 JOIN dbo.CodingChallenges ch ON ch.CourseId = c.Id AND ch.Title = v.ChallengeTitle
-WHERE NOT EXISTS (SELECT 1 FROM dbo.CodeSubmissions s WHERE s.LearnerId = u.Id AND s.ChallengeId = ch.Id);
+-- A learner can have several attempts at one challenge; skip only the exact same attempt (same code)
+WHERE NOT EXISTS (SELECT 1 FROM dbo.CodeSubmissions s
+                  WHERE s.LearnerId = u.Id AND s.ChallengeId = ch.Id AND s.SubmittedCode = v.Code);
 
 -- =====================================
 -- Learner stats for the leaderboard (level and title follow LearnerManager.Levels)
