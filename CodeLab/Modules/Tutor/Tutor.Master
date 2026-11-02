@@ -19,8 +19,9 @@
         (function () {
             var theme = null;
             try { theme = localStorage.getItem('codelab-theme'); } catch (e) { }
+            // Light until the user picks dark with the header toggle, which saves their choice
             if (theme !== 'light' && theme !== 'dark') {
-                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                theme = 'light';
             }
             document.documentElement.setAttribute('data-theme', theme);
         })();
