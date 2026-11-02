@@ -118,6 +118,14 @@ namespace CodeLab.Modules.Tutor
                     items.Add(new AttentionItem(course.Title, "An admin asked for changes", "message-square-warning",
                         "cl-tone-red", CourseUrl(course.Id)));
                 }
+                else if (course.Status == CourseStatuses.Locked)
+                {
+                    // Same red as admin feedback; the course page shows the full reason
+                    string text = string.IsNullOrWhiteSpace(course.LockReason)
+                        ? "An admin locked this course"
+                        : "Locked by an admin: " + Shorten(course.LockReason.Trim(), 80);
+                    items.Add(new AttentionItem(course.Title, text, "lock", "cl-tone-red", CourseUrl(course.Id)));
+                }
             }
 
             foreach (TutorCourseSummary course in courses)
@@ -142,6 +150,12 @@ namespace CodeLab.Modules.Tutor
             }
 
             return items.Count > 6 ? items.GetRange(0, 6) : items;
+        }
+
+        // Cuts long text to max characters, ending in "…"
+        private static string Shorten(string text, int max)
+        {
+            return text.Length <= max ? text : text.Substring(0, max - 1).TrimEnd() + "…";
         }
 
         private static string BuildSummary(int total, int drafts, int pending, int published)
