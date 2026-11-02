@@ -1,7 +1,7 @@
-﻿<%@ Page Title="Leaderboard & Badges" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Leaderboard.aspx.cs" Inherits="CodeLab.Modules.Learner.Leaderboard" %>
+<%@ Page Title="Leaderboard & Badges" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Leaderboard.aspx.cs" Inherits="CodeLab.Modules.Learner.Leaderboard" %>
 <asp:Content ID="Head" ContentPlaceHolderID="HeadContent" runat="server">
 <link rel="stylesheet" href="<%= ResolveUrl("~/Content/LearnerDashboard.css") %>?v=3" />
-<link rel="stylesheet" href="<%= ResolveUrl("~/Content/LearnerLeaderboard.css") %>?v=7" />
+<link rel="stylesheet" href="<%= ResolveUrl("~/Content/LearnerLeaderboard.css") %>?v=9" />
 </asp:Content>
 <asp:Content ID="Main" ContentPlaceHolderID="MainContent" runat="server">
 <main class="ld-wrap">
@@ -52,10 +52,12 @@
     </header>
     <div class="lb-podium">
     <% foreach (var entry in Board.Podium) { bool me=entry.LearnerId==Board.Me.LearnerId; %>
-        <article class='<%= me ? "lb-leader is-you" : "lb-leader" %>'>
+        <article class='<%= me ? "lb-leader is-you" : "lb-leader" %>' data-rank="<%: entry.Rank %>">
             <span class="lb-rank-medal" aria-label='<%: "Rank " + entry.Rank %>'><%: entry.Rank %></span>
             <% if(me) { %><span class="lb-you">YOU</span><% } %>
+            <% if(entry.Rank == 1) { %><svg class="lb-crown" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 5 4 4-7 4 7 5-4-3 13H6Z" /></svg><% } %>
             <span class="lb-avatar lb-avatar-large" aria-hidden="true"><%: Initial(entry.Name) %><% if (Avatar(entry.AvatarUrl) != null) { %><img src="<%: Avatar(entry.AvatarUrl) %>" alt="" referrerpolicy="no-referrer" onerror="this.remove();" /><% } %></span>
+            <span class="lb-place"><svg class="ld-icon" aria-hidden="true"><use href='<%: entry.Rank == 1 ? "#ld-trophy" : "#ld-award" %>' /></svg><%: entry.Rank == 1 ? "1ST PLACE" : entry.Rank == 2 ? "2ND PLACE" : "3RD PLACE" %></span>
             <h2><%: entry.Name %></h2><p class="lb-handle">@<%: entry.Username %></p>
             <div class="lb-leader-stats"><div><span>POINTS</span><strong class="lb-xp"><%: entry.Points.ToString("N0") %> XP</strong></div><div><span>LEVEL</span><strong>Lvl <%: entry.Level %></strong></div></div>
         </article>
