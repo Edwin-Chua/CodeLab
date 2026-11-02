@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Course Curriculum"
+<%@ Page Title="Course Curriculum"
     Language="C#"
     MasterPageFile="~/Site.Master"
     AutoEventWireup="true"
@@ -513,13 +513,7 @@
 
                             </asp:Panel>
 
-                            <div class="cc-lesson-content">
-
-                                <asp:Literal ID="litLessonContent"
-                                    runat="server"
-                                    Mode="Encode" />
-
-                            </div>
+                            <div class="cc-lesson-content cc-markdown-content"><asp:Literal ID="litLessonContent" runat="server" Mode="PassThrough" /></div>
 
                             <asp:Panel ID="pnlCode"
                                 runat="server"
@@ -681,13 +675,9 @@
 
                         <div class="cc-lesson-material">
 
-                            <div class="cc-lesson-content">
-
-                                <asp:Literal ID="litQuizInstructions"
+                            <div class="cc-lesson-content"><asp:Literal ID="litQuizInstructions"
                                     runat="server"
-                                    Mode="Encode" />
-
-                            </div>
+                                    Mode="Encode" /></div>
 
                             <asp:Label ID="lblQuizError"
                                 runat="server"

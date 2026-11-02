@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Coding Challenge"
+<%@ Page Title="Coding Challenge"
     Language="C#"
     MasterPageFile="~/Site.Master"
     AutoEventWireup="true"
@@ -103,16 +103,10 @@
                             &rsaquo;
                         </span>
 
-                        <asp:DropDownList ID="chChallengeSelect"
-                            runat="server"
-                            ClientIDMode="Static"
-                            CssClass="ch-challenge-select"
-                            aria-label="Switch challenge" />
-
-                        <asp:Literal ID="litBreadcrumbTitle"
-                            runat="server"
-                            Mode="Encode"
-                            Visible="false" />
+                        <span class="ch-breadcrumb-title" aria-current="page">
+                            <asp:Literal ID="litBreadcrumbTitle"
+                                runat="server" Mode="Encode" />
+                        </span>
                     </div>
                 </div>
 
@@ -192,7 +186,7 @@
                             <svg class="ch-icon" aria-hidden="true">
                                 <use href="#ch-terminal" />
                             </svg>
-                            Expected Output
+                            <%: IsMarkup ? "Requirements" : "Expected Output" %>
                         </button>
 
                         <button id="chSubmissionsTab"
@@ -274,9 +268,9 @@
                         aria-labelledby="chExpectedTab"
                         hidden>
 
-                        <h2 class="ch-section-title">Expected Output</h2>
+                        <h2 class="ch-section-title"><%: IsMarkup ? "Requirements" : "Expected Output" %></h2>
                         <p class="ch-help-text">
-                            Your program should print the following output.
+                            <%: IsMarkup ? "Your HTML/CSS should meet this checklist. Review checks source code, not a screenshot." : "Your program should print the following output." %>
                         </p>
 
                         <pre class="ch-output-example"><asp:Literal
@@ -408,12 +402,19 @@
                     <section class="ch-output-panel ch-review-tabs" aria-label="Code execution and AI review">
                         <div class="ch-output-heading">
                             <div class="ch-result-tabs" role="tablist" aria-label="Submission feedback">
-                                <button type="button" id="chOutputTab" role="tab" aria-selected="true" aria-controls="chOutputContent"><svg class="ch-icon" aria-hidden="true"><use href="#ch-terminal" /></svg>Output</button>
+                                <button type="button" id="chOutputTab" role="tab" aria-selected="true" aria-controls="chOutputContent"><svg class="ch-icon" aria-hidden="true"><use href="#ch-terminal" /></svg><%: IsMarkup ? "Preview" : "Output" %></button>
                                 <button type="button" id="chReviewTab" role="tab" aria-selected="false" aria-controls="chReviewContent" tabindex="-1"><svg class="ch-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2 6 6 3-6 2-2 7-2-7-6-2 6-3Z" /></svg>AI Review</button>
                             </div>
                             <asp:Label ID="lblExecutionStatus" runat="server" CssClass="ch-execution-status" Text="Not run" />
                         </div>
                         <div id="chOutputContent" role="tabpanel" aria-labelledby="chOutputTab" tabindex="0">
+                            <% if (IsMarkup && PreviewReady) { %>
+                            <div class="ch-preview-controls" aria-label="Preview width">
+                                <button type="button" onclick="document.getElementById('chHtmlPreview').style.width='100%'">Full width</button>
+                                <button type="button" onclick="document.getElementById('chHtmlPreview').style.width='360px'">Mobile (360px)</button>
+                            </div>
+                            <div class="ch-preview-scroll"><iframe id="chHtmlPreview" title="Your HTML and CSS preview" sandbox="" referrerpolicy="no-referrer" srcdoc="<%: PreviewDocument %>"></iframe></div>
+                            <% } %>
                             <pre class="ch-console" role="status" aria-live="polite"><asp:Literal ID="litOutput" runat="server" Mode="Encode" Text="Run your code to see its output. Submit for validation and AI review." /></pre>
                         </div>
                         <div id="chReviewContent" role="tabpanel" aria-labelledby="chReviewTab" tabindex="0" hidden>
