@@ -296,15 +296,11 @@ namespace CodeLab.Modules.Tutor
             return ResolveUrl(ForumUrl) + "?courseId=" + (courseId ?? -1).ToString(System.Globalization.CultureInfo.InvariantCulture);
         }
 
-        // "Instructor" for the course's own tutor, otherwise "Tutor" or "Admin"; plus "You" on your own posts
-        protected string BadgesHtml(int authorId, string role, int courseInstructorId)
+        // "Tutor" or "Admin" by role (a course's own tutor is shown as "Tutor" too); plus "You" on your own posts
+        protected string BadgesHtml(int authorId, string role)
         {
             StringBuilder html = new StringBuilder();
-            if (authorId == courseInstructorId)
-            {
-                html.Append("<span class=\"cl-role-badge is-instructor\">Instructor</span>");
-            }
-            else if (role == UserRoles.Tutor)
+            if (role == UserRoles.Tutor)
             {
                 html.Append("<span class=\"cl-role-badge is-tutor\">Tutor</span>");
             }

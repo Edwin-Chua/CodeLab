@@ -4155,11 +4155,6 @@ pre.cl-output {
     border-radius: 999px;
 }
 
-.cl-role-badge.is-instructor {
-    color: #ffffff;
-    background-color: var(--cl-accent);
-}
-
 .cl-role-badge.is-tutor {
     color: #1D4ED8;
     background-color: rgba(59, 130, 246, 0.14);
